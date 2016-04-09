@@ -1,7 +1,22 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
-  if (jeSmesko) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />');
+  var jeSlika = sporocilo.indexOf('class=\'slike-v-pogovoru\'') > -1;
+  
+  if (jeSmesko || jeSlika) {
+    var myRegexp = new RegExp('\<', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, '&lt;');
+    myRegexp = new RegExp('\>', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, '&gt;');
+    myRegexp = new RegExp('&lt;img', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, '<img');
+    myRegexp = new RegExp('png\' /&gt;', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, 'png\' />');
+    myRegexp = new RegExp('jpg\' /&gt;', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, 'jpg\' />');
+    myRegexp = new RegExp('gif\' /&gt;', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, 'gif\' />');
+    //sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />').replace('jpg\' /&gt;', 'jpg\' />').replace('gif\' /&gt;', 'gif\' />');
+    console.log(sporocilo);
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -14,6 +29,7 @@ function divElementHtmlTekst(sporocilo) {
 
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
+  sporocilo = dodajSlike(sporocilo);
   sporocilo = dodajSmeske(sporocilo);
   var sistemskoSporocilo;
 
@@ -130,4 +146,26 @@ function dodajSmeske(vhodnoBesedilo) {
       preslikovalnaTabela[smesko] + "' />");
   }
   return vhodnoBesedilo;
+}
+
+function dodajSlike(vhodnoBesedilo) {
+  var jeZasebno = vhodnoBesedilo.indexOf('/zasebno') > -1;
+  if (jeZasebno) {
+    vhodnoBesedilo = vhodnoBesedilo.substring(0, vhodnoBesedilo.length-1);
+  }
+  var myRegexp = new RegExp('https?:\/\/\\S+?\.(?:jpg|gif|png)', 'gi');
+  //return vhodnoBesedilo.replace(myRegexp, "<img src=\"\" class=\"slike-v-pogovoru\"/>");
+  var slike = '';
+  var matches_array = vhodnoBesedilo.match(myRegexp);
+  if (matches_array != null) {
+    for (var i = 0; i < matches_array.length; i++) {
+      slike += '<img class=\'slike-v-pogovoru\' src=\''+ matches_array[i] + '\' />';
+    }
+  }
+  var izhod = vhodnoBesedilo + slike;
+  if (jeZasebno) {
+    izhod += "\"";
+  }
+  
+  return izhod;
 }
