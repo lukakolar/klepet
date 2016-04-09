@@ -105,6 +105,17 @@ $(document).ready(function() {
     socket.emit('kanali');
     socket.emit('uporabniki', {kanal: trenutniKanal});
   }, 1000);
+  
+  socket.on('dregljaj', function(dregljaj) {
+    var aliZatresem = dregljaj.dregljaj;
+    if (aliZatresem) {
+      $('#vsebina').jrumble();
+      $('#vsebina').trigger('startRumble');
+      setTimeout(function() {
+        $('#vsebina').trigger('stopRumble');
+      }, 1500);
+    }
+  });
 
   $('#poslji-sporocilo').focus();
 
