@@ -66,3 +66,10 @@ a {
 #pomoc {
   font: 10px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
+.slike-v-pogovoru {
+  width: 200px;
+  margin-left: 20px;
+  display: block;
+}
+
