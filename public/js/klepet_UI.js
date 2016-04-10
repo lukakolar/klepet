@@ -16,7 +16,6 @@ function divElementEnostavniTekst(sporocilo) {
     myRegexp = new RegExp('gif\' /&gt;', 'gi');
     sporocilo = sporocilo.replace(myRegexp, 'gif\' />');
     //sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />').replace('jpg\' /&gt;', 'jpg\' />').replace('gif\' /&gt;', 'gif\' />');
-    console.log(sporocilo);
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
