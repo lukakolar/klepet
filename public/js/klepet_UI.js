@@ -1,21 +1,29 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
   var jeSlika = sporocilo.indexOf('class=\'slike-v-pogovoru\'') > -1;
-  
-  if (jeSmesko || jeSlika) {
+  var jeYoutube = sporocilo.indexOf('class=\'yt-posnetki-v-pogovoru\'') > -1;
+  if (jeSmesko || jeSlika || jeYoutube) {
     var myRegexp = new RegExp('\<', 'gi');
     sporocilo = sporocilo.replace(myRegexp, '&lt;');
     myRegexp = new RegExp('\>', 'gi');
     sporocilo = sporocilo.replace(myRegexp, '&gt;');
     myRegexp = new RegExp('&lt;img', 'gi');
     sporocilo = sporocilo.replace(myRegexp, '<img');
+    
     myRegexp = new RegExp('png\' /&gt;', 'gi');
     sporocilo = sporocilo.replace(myRegexp, 'png\' />');
     myRegexp = new RegExp('jpg\' /&gt;', 'gi');
     sporocilo = sporocilo.replace(myRegexp, 'jpg\' />');
     myRegexp = new RegExp('gif\' /&gt;', 'gi');
     sporocilo = sporocilo.replace(myRegexp, 'gif\' />');
-    //sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />').replace('jpg\' /&gt;', 'jpg\' />').replace('gif\' /&gt;', 'gif\' />');
+
+    myRegexp = new RegExp('&lt;iframe', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, '<iframe');
+    myRegexp = new RegExp('\' allowfullscreen&gt;', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, '\' allowfullscreen>');
+    myRegexp = new RegExp('&lt;/iframe&gt;', 'gi');
+    sporocilo = sporocilo.replace(myRegexp, '</iframe>');
+
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -29,6 +37,7 @@ function divElementHtmlTekst(sporocilo) {
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   sporocilo = dodajSlike(sporocilo);
+  sporocilo = dodajYoutube(sporocilo);
   sporocilo = dodajSmeske(sporocilo);
   var sistemskoSporocilo;
 
@@ -159,7 +168,6 @@ function dodajSlike(vhodnoBesedilo) {
     vhodnoBesedilo = vhodnoBesedilo.substring(0, vhodnoBesedilo.length-1);
   }
   var myRegexp = new RegExp('https?:\/\/\\S+?\.(?:jpg|gif|png)', 'gi');
-  //return vhodnoBesedilo.replace(myRegexp, "<img src=\"\" class=\"slike-v-pogovoru\"/>");
   var slike = '';
   var matches_array = vhodnoBesedilo.match(myRegexp);
   if (matches_array != null) {
@@ -172,5 +180,27 @@ function dodajSlike(vhodnoBesedilo) {
     izhod += "\"";
   }
   
+  return izhod;
+}
+
+function dodajYoutube(vhodnoBesedilo) {
+  var jeZasebno = vhodnoBesedilo.indexOf('/zasebno') > -1;
+  if (jeZasebno) {
+    vhodnoBesedilo = vhodnoBesedilo.substring(0, vhodnoBesedilo.length-1);
+  }
+  var myRegexp = new RegExp('https:\/\/www\.youtube\.com\/watch\\?v=[^\\s]{11}', 'gi');
+  var posnetki = '';
+  var matches_array = vhodnoBesedilo.match(myRegexp);
+  if (matches_array != null) {
+    for (var i = 0; i < matches_array.length; i++) {
+      var zadetek = matches_array[i];
+      var naslov = zadetek.substring(32, zadetek.length);
+      posnetki += '<iframe class=\'yt-posnetki-v-pogovoru\' src=\'https://www.youtube.com/embed/'+ naslov + '\' allowfullscreen></iframe>';
+    }
+  }
+  var izhod = vhodnoBesedilo + posnetki;
+  if (jeZasebno) {
+    izhod += "\"";
+  }
   return izhod;
 }
